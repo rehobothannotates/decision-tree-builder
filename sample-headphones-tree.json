@@ -1,0 +1,391 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "text": "Is the customer's budget above $150?",
+      "x": 2146,
+      "y": 40,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": 2
+        },
+        {
+          "label": "No",
+          "to": 17
+        },
+        {
+          "label": "Unclear",
+          "to": 20
+        }
+      ],
+      "note": "If the customer says 'around 100 to 200', treat it as Unclear and ask again."
+    },
+    {
+      "id": 2,
+      "text": "Will they mostly use the headphones for travel or commuting?",
+      "x": 1364,
+      "y": 300,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": 3
+        },
+        {
+          "label": "No",
+          "to": 14
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "text": "Do they want strong noise cancelling?",
+      "x": 934,
+      "y": 560,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": 4
+        },
+        {
+          "label": "No",
+          "to": 11
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "text": "Do they fly or travel often (3+ trips a year)?",
+      "x": 613,
+      "y": 820,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": 5
+        },
+        {
+          "label": "No",
+          "to": 10
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "text": "Do they need 30+ hours of battery life?",
+      "x": 377,
+      "y": 1080,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": 6
+        },
+        {
+          "label": "No",
+          "to": 9
+        }
+      ],
+      "note": "Long-haul flights usually need 30+ hours."
+    },
+    {
+      "id": 6,
+      "text": "Are they sensitive to weight (want very light headphones)?",
+      "x": 175,
+      "y": 1340,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": 7
+        },
+        {
+          "label": "No",
+          "to": 8
+        }
+      ],
+      "note": "Ask if they wear glasses or have neck pain. Weight matters more then."
+    },
+    {
+      "id": 7,
+      "text": "Recommend: lightweight, long-battery noise-cancelling headphones",
+      "x": 40,
+      "y": 1600,
+      "final": true,
+      "cat": 0,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "text": "Recommend: top-tier long-battery noise-cancelling over-ear headphones",
+      "x": 310,
+      "y": 1600,
+      "final": true,
+      "cat": 0,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "text": "Recommend: compact premium noise-cancelling headphones",
+      "x": 580,
+      "y": 1340,
+      "final": true,
+      "cat": 0,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "text": "Recommend: premium noise-cancelling over-ear headphones",
+      "x": 850,
+      "y": 1080,
+      "final": true,
+      "cat": 0,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "text": "Do they care most about sound quality for music?",
+      "x": 1255,
+      "y": 820,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": 12
+        },
+        {
+          "label": "No",
+          "to": 13
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "text": "Recommend: premium over-ear headphones, no noise cancelling",
+      "x": 1120,
+      "y": 1080,
+      "final": true,
+      "cat": 0,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "text": "Recommend: mid-range wireless earbuds",
+      "x": 1390,
+      "y": 1080,
+      "final": true,
+      "cat": 0,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "text": "Is comfort for long sessions at home the top priority?",
+      "x": 1795,
+      "y": 560,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": 15
+        },
+        {
+          "label": "No",
+          "to": 16
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "text": "Recommend: comfort-first over-ear headphones",
+      "x": 1660,
+      "y": 820,
+      "final": true,
+      "cat": 0,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "text": "Recommend: premium open-back headphones",
+      "x": 1930,
+      "y": 820,
+      "final": true,
+      "cat": 0,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "text": "Does the customer need wireless (no cable)?",
+      "x": 2335,
+      "y": 300,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": 18
+        },
+        {
+          "label": "No",
+          "to": 19
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "text": "Recommend: budget wireless headphones",
+      "x": 2200,
+      "y": 560,
+      "final": true,
+      "cat": 0,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "text": "Recommend: basic wired headphones",
+      "x": 2470,
+      "y": 560,
+      "final": true,
+      "cat": 0,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "text": "Ask the customer for a budget range first, then start again",
+      "x": 2740,
+      "y": 300,
+      "final": true,
+      "cat": 1,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    }
+  ],
+  "next": 21,
+  "start": 1,
+  "legend": [
+    {
+      "color": "#16a34a",
+      "name": "Proceed"
+    },
+    {
+      "color": "#eab308",
+      "name": "Review"
+    },
+    {
+      "color": "#dc2626",
+      "name": "Stop"
+    },
+    {
+      "color": "#2563eb",
+      "name": "Question / Process"
+    }
+  ]
+}

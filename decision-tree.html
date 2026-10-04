@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Decision Tree Builder - Part 1</title>
+<style>
+  body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:#f3f4f6;color:#1f2937}
+  #bar{position:fixed;top:0;left:0;right:0;height:50px;background:#1e293b;display:flex;gap:8px;align-items:center;padding:0 14px;z-index:10}
+  #bar button{padding:8px 11px;border:0;border-radius:6px;background:#2563eb;color:#fff;font-size:14px;cursor:pointer}
+  #bar button:hover{background:#1d4ed8}
+  #bar button.grey{background:#475569}
+  #hint{margin-left:auto;color:#cbd5e1;font-size:13px}
+  #wrap{position:absolute;top:50px;left:0;right:0;bottom:0;overflow:auto}
+  #board{position:relative;transform-origin:0 0;cursor:grab;width:4000px;height:3000px;background-image:radial-gradient(#cbd5e1 1px,transparent 1px);background-size:24px 24px}
+  #arrows{position:absolute;left:0;top:0;width:4000px;height:3000px;pointer-events:none}
+  .node{position:absolute;cursor:default;width:240px;background:#fff;border:2px solid #2563eb;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+  .node.final{border-color:#16a34a;background:#f0fdf4}
+  .node.start{outline:3px solid #f59e0b;outline-offset:2px}
+  .head{background:#2563eb;color:#fff;padding:5px 8px;font-size:12px;cursor:move;border-radius:7px 7px 0 0;display:flex;align-items:center;gap:4px;user-select:none}
+  .final .head{background:#16a34a}
+  .head .title{flex:1}
+  .head button{background:rgba(255,255,255,.2);border:0;color:#fff;border-radius:4px;cursor:pointer;padding:2px 5px;font-size:12px}
+  .head button:hover{background:rgba(255,255,255,.4)}
+  .body{padding:8px}
+  textarea{width:100%;box-sizing:border-box;height:62px;resize:vertical;border:1px solid #cbd5e1;border-radius:6px;padding:6px;font:14px "Segoe UI",Arial,sans-serif}
+  .row{display:flex;gap:4px;margin-top:6px;align-items:center}
+  .row input{flex:1;min-width:0;border:1px solid #cbd5e1;border-radius:5px;padding:5px;font-size:13px}
+  .row button{border:0;border-radius:5px;padding:5px 7px;font-size:12px;cursor:pointer;background:#e2e8f0}
+  .row button.go{background:#dbeafe;color:#1e40af}
+  .row button:hover{filter:brightness(.93)}
+  .node.clean{cursor:move;user-select:none}
+  .node.clean.start{outline:none}
+  .ctext{padding:14px 16px;font-size:15px;line-height:1.35;text-align:center;white-space:pre-wrap}
+  .sw{display:inline-block;width:16px;height:16px;border-radius:50%;box-shadow:0 0 0 1px #94a3b8;cursor:pointer;margin-right:7px;vertical-align:middle}
+  .sw.on{box-shadow:0 0 0 3px #1e293b}
+  .swrow{margin-top:8px;display:flex;align-items:center}
+  .nico{position:absolute;top:3px;right:6px;cursor:pointer;font-size:13px}
+  .note{font-size:12px;font-style:italic;color:#475569;padding:0 14px 10px;text-align:center;white-space:pre-wrap}
+  .legend{position:fixed;left:14px;bottom:14px;background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:8px 12px;font-size:13px;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+  .legend div{display:flex;align-items:center;gap:6px;margin:4px 0}
+  .legend input[type=text],.legend input:not([type]){border:1px solid #cbd5e1;border-radius:5px;padding:4px;font-size:13px}
+  .legend button{margin:6px 6px 0 0;border:0;background:#e2e8f0;border-radius:5px;padding:5px 9px;cursor:pointer}
+  #runbox{display:none;position:fixed;top:50px;left:0;right:0;bottom:0;background:#f3f4f6;z-index:20;overflow:auto}
+  .rin{max-width:640px;margin:0 auto;padding:24px 16px}
+  .rcard{background:#fff;border-radius:12px;border-top:10px solid #2563eb;box-shadow:0 2px 10px rgba(0,0,0,.15);padding:22px}
+  .rtag{font-size:13px;color:#475569;margin-bottom:8px}
+  .rq{font-size:22px;line-height:1.35;white-space:pre-wrap}
+  .rnote{margin-top:14px;padding:10px 12px;background:#fffbeb;border-radius:8px;font-size:14px;color:#475569;white-space:pre-wrap}
+  .rans{display:block;width:100%;margin-top:10px;padding:13px;border:0;border-radius:8px;background:#2563eb;color:#fff;font-size:17px;cursor:pointer;text-align:left}
+  .rans:disabled{background:#cbd5e1;cursor:not-allowed}
+  .rbtns{margin:16px 0}
+  .rbtns button{margin-right:8px;padding:8px 14px;border:0;border-radius:6px;background:#475569;color:#fff;cursor:pointer;font-size:14px}
+  .rbtns button:disabled{opacity:.4;cursor:not-allowed}
+  .rpath{margin-top:6px;font-size:15px;line-height:1.6}
+  .rpath li{margin-bottom:4px}
+  #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:9px 18px;border-radius:8px;z-index:50;display:none;font-size:14px}
+  @media (max-width:1500px){#hint{display:none}}
+  .small{margin-top:8px;font-size:12px;color:#475569;display:flex;justify-content:space-between;align-items:center}
+  .small button{border:0;background:#e2e8f0;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:12px}
+</style>
+</head>
+<body>
+
+<div id="bar">
+  <button id="bNew" class="grey">New</button>
+  <button id="bOpen" class="grey">Open</button>
+  <button id="bSave" class="grey">Save</button>
+  <button id="bSaveAs" class="grey">Save As</button>
+  <button id="bUndo" class="grey">Undo</button>
+  <button id="bRedo" class="grey">Redo</button>
+  <button id="bAdd">+ Add box</button>
+  <button id="bView" class="grey">Clean view</button>
+  <button id="bCol" class="grey">Colours</button>
+  <button id="bRun" style="background:#16a34a">Run Tree</button>
+  <button id="bFit" class="grey">Fit</button>
+  <button id="b100" class="grey">100%</button>
+  <button id="bPng">Export PNG</button>
+  <span id="hint">Mouse wheel zooms. Drag empty space to move around.</span>
+  <input type="file" id="fileIn" accept=".json" style="display:none">
+</div>
+
+<div id="wrap">
+  <div id="board">
+    <svg id="arrows"></svg>
+  </div>
+</div>
+
+<div id="runbox"></div>
+<div id="toast"></div>
+<div id="legend" class="legend" style="display:none"></div>
+<div id="cpanel" class="legend" style="display:none;left:auto;right:14px;top:60px;bottom:auto"></div>
+
+<script>
+var tree = freshTree();
+var openNotes = {};
+
+function defaultLegend() {
+  return [{ color: "#16a34a", name: "Proceed" }, { color: "#eab308", name: "Review" },
+          { color: "#dc2626", name: "Stop" }, { color: "#2563eb", name: "Question / Process" }];
+}
+
+function freshTree() {
+  return { nodes: [], next: 1, start: null, legend: defaultLegend() };
+}
+
+function colorOf(n) {
+  if (n.cat != null && tree.legend[n.cat]) return tree.legend[n.cat].color;
+  return n.final ? "#16a34a" : "#2563eb";
+}
+
+function drawLegend() {
+  var box = document.getElementById("legend");
+  box.innerHTML = "";
+  var used = {};
+  tree.nodes.forEach(function (n) { if (n.cat != null && tree.legend[n.cat]) used[n.cat] = true; });
+  var keys = Object.keys(used);
+  if (!viewMode || !keys.length) { box.style.display = "none"; return; }
+  keys.forEach(function (k) {
+    var sw = h("span", { className: "sw" });
+    sw.style.background = tree.legend[k].color;
+    box.appendChild(h("div", {}, [sw, tree.legend[k].name]));
+  });
+  box.style.display = "block";
+}
+
+function buildPanel() {
+  var p = document.getElementById("cpanel");
+  p.innerHTML = "";
+  p.appendChild(h("div", {}, ["Colour meanings (change them any time)"]));
+  tree.legend.forEach(function (L) {
+    var c = h("input", { type: "color", value: L.color });
+    track(c, function () { L.color = c.value; render(); });
+    var t = h("input", { value: L.name });
+    track(t, function () { L.name = t.value; render(); });
+    p.appendChild(h("div", {}, [c, t]));
+  });
+  if (tree.legend.length < 8) {
+    var a = h("button", {}, ["+ Add colour"]);
+    a.onclick = function () { pushUndo(); tree.legend.push({ color: "#8b5cf6", name: "New meaning" }); buildPanel(); };
+    p.appendChild(a);
+  }
+  var x = h("button", {}, ["Close"]);
+  x.onclick = function () { p.style.display = "none"; };
+  p.appendChild(x);
+}
+
+function wrapText(ctx, text, maxW) {
+  var out = [];
+  String(text).split("\n").forEach(function (para) {
+    var words = para.split(" "), line = "";
+    words.forEach(function (w) {
+      var test = line ? line + " " + w : w;
+      if (line && ctx.measureText(test).width > maxW) { out.push(line); line = w; }
+      else { line = test; }
+    });
+    out.push(line);
+  });
+  return out;
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function exportPng() {
+  if (!tree.nodes.length) return;
+  var FONT = '15px "Segoe UI", Arial, sans-serif';
+  var cv = document.createElement("canvas");
+  var ctx = cv.getContext("2d");
+
+  var info = {};
+  ctx.font = FONT;
+  tree.nodes.forEach(function (n) {
+    var lines = wrapText(ctx, n.text || "(empty box)", NODE_W - 32);
+    info[n.id] = { lines: lines, h: Math.max(56, lines.length * 20 + 28) };
+  });
+
+  var pad = 40, minX = 1e9, minY = 1e9, maxX = 0, maxY = 0;
+  tree.nodes.forEach(function (n) {
+    minX = Math.min(minX, n.x); minY = Math.min(minY, n.y);
+    maxX = Math.max(maxX, n.x + NODE_W); maxY = Math.max(maxY, n.y + info[n.id].h);
+  });
+  var used = [];
+  tree.legend.forEach(function (L, i) {
+    if (tree.nodes.some(function (n) { return n.cat === i; })) used.push(L);
+  });
+  var legendH = used.length ? used.length * 24 + 20 : 0;
+  var W = maxX - minX + pad * 2, H = maxY - minY + pad * 2 + legendH;
+  var sc = Math.min(2, 8000 / Math.max(W, H));
+  cv.width = Math.round(W * sc);
+  cv.height = Math.round(H * sc);
+  ctx.scale(sc, sc);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, W, H);
+  ctx.translate(pad - minX, pad - minY);
+
+  var labels = [];
+  ctx.strokeStyle = "#475569"; ctx.fillStyle = "#475569"; ctx.lineWidth = 2;
+  tree.nodes.forEach(function (n) {
+    if (n.final) return;
+    var cnt = n.branches.length;
+    n.branches.forEach(function (b, i) {
+      var c = b.to ? byId(b.to) : null;
+      if (!c) return;
+      var x1 = n.x + NODE_W * (i + 1) / (cnt + 1), y1 = n.y + info[n.id].h;
+      var x2 = c.x + NODE_W / 2, y2 = c.y;
+      ctx.beginPath(); ctx.moveTo(x1, y1);
+      ctx.bezierCurveTo(x1, y1 + 60, x2, y2 - 60, x2, y2);
+      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x2, y2); ctx.lineTo(x2 - 5, y2 - 11); ctx.lineTo(x2 + 5, y2 - 11);
+      ctx.closePath(); ctx.fill();
+      labels.push({ t: b.label || "", x: (x1 + x2) / 2, y: (y1 + y2) / 2 });
+    });
+  });
+
+  tree.nodes.forEach(function (n) {
+    var col = colorOf(n), bh = info[n.id].h;
+    roundRect(ctx, n.x, n.y, NODE_W, bh, 10);
+    ctx.fillStyle = "#ffffff"; ctx.fill();
+    ctx.fillStyle = n.cat != null ? col + "1a" : (n.final ? "#f0fdf4" : "#ffffff");
+    ctx.fill();
+    ctx.lineWidth = 2.5; ctx.strokeStyle = col; ctx.stroke();
+    ctx.fillStyle = "#1f2937"; ctx.font = FONT;
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    info[n.id].lines.forEach(function (l, k) {
+      ctx.fillText(l, n.x + NODE_W / 2, n.y + 14 + k * 20);
+    });
+  });
+
+  ctx.font = '600 13px "Segoe UI", Arial, sans-serif';
+  ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.lineJoin = "round";
+  labels.forEach(function (l) {
+    ctx.lineWidth = 5; ctx.strokeStyle = "#ffffff"; ctx.strokeText(l.t, l.x, l.y);
+    ctx.fillStyle = "#1e293b"; ctx.fillText(l.t, l.x, l.y);
+  });
+
+  used.forEach(function (L, k) {
+    var y = maxY + 30 + k * 24;
+    ctx.beginPath(); ctx.arc(minX + 8, y, 8, 0, Math.PI * 2);
+    ctx.fillStyle = L.color; ctx.fill();
+    ctx.fillStyle = "#1f2937"; ctx.font = '14px "Segoe UI", Arial, sans-serif';
+    ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    ctx.fillText(L.name, minX + 24, y);
+  });
+
+  cv.toBlob(function (blob) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "my-decision-tree.png";
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }, "image/png");
+}
+
+var undoStack = [], redoStack = [], fileHandle = null;
+
+function pushUndo() {
+  undoStack.push(JSON.stringify(tree));
+  if (undoStack.length > 60) undoStack.shift();
+  redoStack = [];
+}
+
+function track(el, fn) {
+  el.onfocus = function () { el._u = false; };
+  el.oninput = function () {
+    if (!el._u) { pushUndo(); el._u = true; }
+    fn();
+  };
+}
+
+function restoreTree(json) {
+  tree = JSON.parse(json);
+  if (!tree.legend) tree.legend = defaultLegend();
+  buildPanel();
+  render();
+}
+
+function undo() {
+  if (run || !undoStack.length) return;
+  redoStack.push(JSON.stringify(tree));
+  restoreTree(undoStack.pop());
+}
+
+function redo() {
+  if (run || !redoStack.length) return;
+  undoStack.push(JSON.stringify(tree));
+  restoreTree(redoStack.pop());
+}
+
+function duplicateNode(n) {
+  pushUndo();
+  var c = makeNode(n.x + 30, n.y + 30);
+  c.text = n.text;
+  c.final = n.final;
+  c.cat = n.cat;
+  if (n.note) c.note = n.note;
+  c.branches = n.branches.map(function (b) { return { label: b.label, to: null }; });
+  render();
+}
+
+function flash(msg) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  setTimeout(function () { t.style.display = "none"; }, 2200);
+}
+
+async function writeTo(handle) {
+  var w = await handle.createWritable();
+  await w.write(JSON.stringify(tree, null, 2));
+  await w.close();
+}
+
+async function saveAs() {
+  if (window.showSaveFilePicker) {
+    try {
+      var hd = await window.showSaveFilePicker({
+        suggestedName: "my-decision-tree.json",
+        types: [{ description: "Decision tree", accept: { "application/json": [".json"] } }]
+      });
+      await writeTo(hd);
+      fileHandle = hd;
+      flash("Saved as " + hd.name);
+    } catch (e) {
+      if (e.name !== "AbortError") { downloadTree(); flash("Downloaded to your Downloads folder"); }
+    }
+  } else {
+    downloadTree();
+    flash("Downloaded to your Downloads folder");
+  }
+}
+
+function saveFile() {
+  if (fileHandle) {
+    writeTo(fileHandle).then(function () { flash("Saved"); }).catch(function () { saveAs(); });
+  } else {
+    saveAs();
+  }
+}
+
+async function openFile() {
+  if (window.showOpenFilePicker) {
+    try {
+      var hs = await window.showOpenFilePicker({
+        types: [{ description: "Decision tree", accept: { "application/json": [".json"] } }]
+      });
+      var f = await hs[0].getFile();
+      var text = await f.text();
+      var data = JSON.parse(text);
+      if (!data.nodes || !Array.isArray(data.nodes)) throw new Error("not a tree file");
+      tree = data;
+      if (!tree.legend) tree.legend = defaultLegend();
+      openNotes = {}; undoStack = []; redoStack = [];
+      fileHandle = hs[0];
+      setView(true);
+      fitTree();
+    } catch (e) {
+      if (e.name === "AbortError") return;
+      if (e instanceof SyntaxError || e.message === "not a tree file") {
+        alert("Sorry, this file could not be opened. It is not a decision tree file.");
+      } else {
+        document.getElementById("fileIn").click();
+      }
+    }
+  } else {
+    document.getElementById("fileIn").click();
+  }
+}
+
+var run = null;
+
+function startRun() {
+  if (!tree.nodes.length || !byId(tree.start)) {
+    alert("Add a box and choose a Start box first.");
+    return;
+  }
+  run = { steps: [], cur: tree.start };
+  showRun();
+}
+
+function exitRun() {
+  run = null;
+  document.getElementById("runbox").style.display = "none";
+}
+
+function showRun() {
+  var ov = document.getElementById("runbox");
+  ov.innerHTML = "";
+  ov.style.display = "block";
+  var n = byId(run.cur);
+  var inner = h("div", { className: "rin" });
+
+  if (!n) {
+    inner.appendChild(h("div", { className: "rcard" }, ["This box no longer exists."]));
+  } else {
+    var card = h("div", { className: "rcard" });
+    card.style.borderTopColor = colorOf(n);
+    var tag = n.final ? "Final decision" : "Question " + (run.steps.length + 1);
+    if (n.cat != null && tree.legend[n.cat]) tag += " (" + tree.legend[n.cat].name + ")";
+    card.appendChild(h("div", { className: "rtag" }, [tag]));
+    card.appendChild(h("div", { className: "rq" }, [n.text || "(empty box)"]));
+    if (n.note) card.appendChild(h("div", { className: "rnote" }, [n.note]));
+    if (!n.final) {
+      n.branches.forEach(function (b) {
+        var label = (b.label || "(no label)") + (b.to ? "" : "   (not connected)");
+        var btn = h("button", { className: "rans", disabled: !b.to }, [label]);
+        btn.onclick = function () {
+          run.steps.push({ id: n.id, ans: b.label || "(no label)" });
+          run.cur = b.to;
+          showRun();
+        };
+        card.appendChild(btn);
+      });
+    }
+    inner.appendChild(card);
+  }
+
+  var btns = h("div", { className: "rbtns" });
+  var back = h("button", { disabled: !run.steps.length }, ["Back"]);
+  back.onclick = function () { run.cur = run.steps.pop().id; showRun(); };
+  var again = h("button", {}, ["Restart"]);
+  again.onclick = function () { run = { steps: [], cur: tree.start }; showRun(); };
+  var out = h("button", {}, ["Exit run"]);
+  out.onclick = exitRun;
+  [back, again, out].forEach(function (b) { btns.appendChild(b); });
+  inner.appendChild(btns);
+
+  if (run.steps.length) {
+    inner.appendChild(h("div", { className: "rtag" }, ["Your path"]));
+    var ol = h("ol", { className: "rpath" });
+    run.steps.forEach(function (s) {
+      var q = byId(s.id);
+      ol.appendChild(h("li", {}, [((q && q.text) || "(empty box)") + " \u2192 ", h("b", {}, [s.ans])]));
+    });
+    if (n && n.final) ol.appendChild(h("li", {}, ["Result: " + (n.text || "(empty box)")]));
+    inner.appendChild(ol);
+  }
+
+  ov.appendChild(inner);
+}
+var board = document.getElementById("board");
+var svg = document.getElementById("arrows");
+var NODE_W = 240;
+var viewMode = false;
+var scale = 1;
+
+function applyScale(s, mx, my) {
+  var w = document.getElementById("wrap");
+  var bx = (w.scrollLeft + mx) / scale, by = (w.scrollTop + my) / scale;
+  scale = Math.min(2, Math.max(0.15, s));
+  board.style.transform = "scale(" + scale + ")";
+  w.scrollLeft = bx * scale - mx;
+  w.scrollTop = by * scale - my;
+}
+
+function fitTree() {
+  if (!tree.nodes.length) return;
+  var w = document.getElementById("wrap");
+  var minX = 1e9, minY = 1e9, maxX = 0, maxY = 0;
+  tree.nodes.forEach(function (n) {
+    var el = elOf(n.id);
+    var eh = el ? el.offsetHeight : 150;
+    minX = Math.min(minX, n.x); minY = Math.min(minY, n.y);
+    maxX = Math.max(maxX, n.x + NODE_W); maxY = Math.max(maxY, n.y + eh);
+  });
+  var s = Math.min((w.clientWidth - 60) / (maxX - minX), (w.clientHeight - 60) / (maxY - minY), 1);
+  scale = Math.max(0.15, s);
+  board.style.transform = "scale(" + scale + ")";
+  w.scrollLeft = minX * scale - 30;
+  w.scrollTop = minY * scale - 30;
+}
+
+function setView(v) {
+  exitRun();
+  viewMode = v;
+  document.getElementById("bView").textContent = v ? "Edit tree" : "Clean view";
+  document.getElementById("bAdd").style.display = v ? "none" : "";
+  buildPanel();
+  render();
+}
+
+function h(tag, props, kids) {
+  var e = document.createElement(tag);
+  for (var k in (props || {})) e[k] = props[k];
+  (kids || []).forEach(function (c) {
+    e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+  });
+  return e;
+}
+
+function byId(id) {
+  return tree.nodes.find(function (n) { return n.id === id; });
+}
+
+function elOf(id) {
+  return board.querySelector('.node[data-id="' + id + '"]');
+}
+
+function makeNode(x, y) {
+  var n = { id: tree.next++, text: "", x: x, y: y, final: false,
+            branches: [{ label: "Yes", to: null }, { label: "No", to: null }] };
+  tree.nodes.push(n);
+  if (tree.start === null) tree.start = n.id;
+  return n;
+}
+
+function addChild(parent, index) {
+  pushUndo();
+  var pel = elOf(parent.id);
+  var count = parent.branches.length;
+  var x = parent.x + (index - (count - 1) / 2) * 270;
+  var y = parent.y + (pel ? pel.offsetHeight : 200) + 100;
+  var child = makeNode(Math.max(10, x), y);
+  parent.branches[index].to = child.id;
+  render();
+}
+
+function deleteNode(n) {
+  if (!confirm("Delete this box?")) return;
+  pushUndo();
+  tree.nodes = tree.nodes.filter(function (m) { return m.id !== n.id; });
+  tree.nodes.forEach(function (m) {
+    m.branches.forEach(function (b) { if (b.to === n.id) b.to = null; });
+  });
+  if (tree.start === n.id) tree.start = tree.nodes.length ? tree.nodes[0].id : null;
+  render();
+}
+
+function buildNode(n) {
+  var el = h("div", { className: "node" + (n.final ? " final" : "") + (tree.start === n.id ? " start" : "") });
+  el.dataset.id = n.id;
+  el.style.left = n.x + "px";
+  el.style.top = n.y + "px";
+
+  var col = colorOf(n);
+  el.style.borderColor = col;
+
+  if (viewMode) {
+    el.className += " clean";
+    if (n.cat != null) el.style.background = col + "1a";
+    el.appendChild(h("div", { className: "ctext" }, [n.text || "(empty box)"]));
+    if (n.note) {
+      var ico = h("span", { className: "nico", title: "Show or hide note" }, ["\uD83D\uDCDD"]);
+      ico.onmousedown = function (ev) { ev.stopPropagation(); };
+      ico.onclick = function () { openNotes[n.id] = !openNotes[n.id]; render(); };
+      el.appendChild(ico);
+      if (openNotes[n.id]) el.appendChild(h("div", { className: "note" }, [n.note]));
+    }
+    el.onmousedown = function (ev) { startDrag(ev, n, el); };
+    board.appendChild(el);
+    return;
+  }
+
+  var title = h("span", { className: "title" }, [tree.start === n.id ? "START" : "Question " + n.id]);
+  var bStart = h("button", { title: "Make this the start box" }, ["Start"]);
+  bStart.onclick = function () { pushUndo(); tree.start = n.id; render(); };
+  var bDel = h("button", { title: "Delete this box" }, ["X"]);
+  bDel.onclick = function () { deleteNode(n); };
+  var bNote = h("button", { title: "Add or show a note" }, [n.note ? "Note \u2022" : "Note"]);
+  bNote.onclick = function () { openNotes[n.id] = !openNotes[n.id]; render(); };
+  var bCopy = h("button", { title: "Make a copy of this box" }, ["Copy"]);
+  bCopy.onclick = function () { duplicateNode(n); };
+  var head = h("div", { className: "head" }, [title, bNote, bStart, bCopy, bDel]);
+  head.style.background = col;
+  head.onmousedown = function (ev) { startDrag(ev, n, el); };
+
+  var body = h("div", { className: "body" });
+  var ta = h("textarea", { value: n.text, placeholder: n.final ? "Type the final decision..." : "Type your question..." });
+  track(ta, function () { n.text = ta.value; });
+  body.appendChild(ta);
+
+  if (openNotes[n.id]) {
+    var nt = h("textarea", { value: n.note || "", placeholder: "Note: extra instructions for this box..." });
+    nt.style.height = "50px";
+    nt.style.marginTop = "6px";
+    nt.style.background = "#fffbeb";
+    track(nt, function () { n.note = nt.value; });
+    body.appendChild(nt);
+  }
+
+  var sw = h("div", { className: "swrow" });
+  var none = h("span", { className: "sw" + (n.cat == null ? " on" : ""), title: "Default colour" });
+  none.style.background = "#fff";
+  none.onclick = function () { pushUndo(); n.cat = null; render(); };
+  sw.appendChild(none);
+  tree.legend.forEach(function (L, i) {
+    var s = h("span", { className: "sw" + (n.cat === i ? " on" : ""), title: L.name });
+    s.style.background = L.color;
+    s.onclick = function () { pushUndo(); n.cat = i; render(); };
+    sw.appendChild(s);
+  });
+  body.appendChild(sw);
+
+  if (!n.final) {
+    n.branches.forEach(function (b, i) {
+      var inp = h("input", { value: b.label, placeholder: "Answer label" });
+      track(inp, function () { b.label = inp.value; drawArrows(); });
+      var go = h("button", { className: b.to ? "go" : "", title: b.to ? "Already linked" : "Create the next box" },
+                 [b.to ? "Box " + b.to : "+ Box"]);
+      go.onclick = function () { if (!b.to) addChild(n, i); };
+      var rm = h("button", { title: "Remove this answer" }, ["x"]);
+      rm.onclick = function () { pushUndo(); n.branches.splice(i, 1); render(); };
+      body.appendChild(h("div", { className: "row" }, [inp, go, rm]));
+    });
+    var addB = h("button", {}, ["+ Answer"]);
+    addB.onclick = function () { pushUndo(); n.branches.push({ label: "Maybe", to: null }); render(); };
+    body.appendChild(h("div", { className: "small" }, [addB, finalToggle(n)]));
+  } else {
+    body.appendChild(h("div", { className: "small" }, [h("span"), finalToggle(n)]));
+  }
+
+  el.appendChild(head);
+  el.appendChild(body);
+  board.appendChild(el);
+}
+
+function finalToggle(n) {
+  var cb = h("input", { type: "checkbox", checked: n.final });
+  cb.onchange = function () { pushUndo(); n.final = cb.checked; render(); };
+  return h("label", {}, [cb, " Final decision"]);
+}
+
+function drawArrows() {
+  var out = '<defs><marker id="ah" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">' +
+            '<path d="M0,0 L10,4 L0,8 z" fill="#475569"/></marker></defs>';
+  tree.nodes.forEach(function (n) {
+    if (n.final) return;
+    var el = elOf(n.id);
+    if (!el) return;
+    var count = n.branches.length;
+    n.branches.forEach(function (b, i) {
+      var c = b.to ? byId(b.to) : null;
+      if (!c) return;
+      var x1 = n.x + NODE_W * (i + 1) / (count + 1);
+      var y1 = n.y + el.offsetHeight;
+      var x2 = c.x + NODE_W / 2;
+      var y2 = c.y;
+      var mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      out += '<path d="M' + x1 + ',' + y1 + ' C' + x1 + ',' + (y1 + 60) + ' ' + x2 + ',' + (y2 - 60) + ' ' + x2 + ',' + y2 +
+             '" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#ah)"/>';
+      var label = String(b.label).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+      out += '<text x="' + mx + '" y="' + my + '" text-anchor="middle" font-size="13" font-weight="600" fill="#1e293b" ' +
+             'stroke="#f3f4f6" stroke-width="5" paint-order="stroke">' + label + '</text>';
+    });
+  });
+  svg.innerHTML = out;
+}
+
+function render() {
+  board.querySelectorAll(".node").forEach(function (e) { e.remove(); });
+  tree.nodes.forEach(buildNode);
+  drawArrows();
+  drawLegend();
+}
+
+function startDrag(ev, n, el) {
+  if (ev.target.tagName === "BUTTON") return;
+  var sx = ev.clientX, sy = ev.clientY, ox = n.x, oy = n.y, moved = false;
+  function move(e) {
+    if (!moved) { pushUndo(); moved = true; }
+    n.x = Math.max(0, ox + (e.clientX - sx) / scale);
+    n.y = Math.max(0, oy + (e.clientY - sy) / scale);
+    el.style.left = n.x + "px";
+    el.style.top = n.y + "px";
+    drawArrows();
+  }
+  function up() {
+    document.removeEventListener("mousemove", move);
+    document.removeEventListener("mouseup", up);
+  }
+  document.addEventListener("mousemove", move);
+  document.addEventListener("mouseup", up);
+  ev.preventDefault();
+}
+
+document.getElementById("bAdd").onclick = function () {
+  var w = document.getElementById("wrap");
+  pushUndo();
+  makeNode(w.scrollLeft / scale + 60, w.scrollTop / scale + 60);
+  render();
+};
+
+document.getElementById("bNew").onclick = function () {
+  if (!confirm("Start a new tree? Unsaved work will be lost.")) return;
+  tree = freshTree();
+  openNotes = {};
+  fileHandle = null; undoStack = []; redoStack = [];
+  makeNode(400, 60);
+  setView(false);
+};
+
+document.getElementById("bView").onclick = function () {
+  setView(!viewMode);
+};
+
+document.getElementById("bCol").onclick = function () {
+  var p = document.getElementById("cpanel");
+  if (p.style.display === "none") { buildPanel(); p.style.display = "block"; }
+  else { p.style.display = "none"; }
+};
+
+document.getElementById("bRun").onclick = startRun;
+document.getElementById("bFit").onclick = fitTree;
+document.getElementById("bPng").onclick = exportPng;
+document.getElementById("bSave").onclick = saveFile;
+document.getElementById("bSaveAs").onclick = saveAs;
+document.getElementById("bUndo").onclick = undo;
+document.getElementById("bRedo").onclick = redo;
+
+document.addEventListener("keydown", function (e) {
+  var ctrl = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
+  var typing = /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
+  if (ctrl && k === "s") { e.preventDefault(); if (e.shiftKey) saveAs(); else saveFile(); }
+  else if (ctrl && k === "o") { e.preventDefault(); openFile(); }
+  else if (ctrl && !typing && k === "z") { e.preventDefault(); if (e.shiftKey) redo(); else undo(); }
+  else if (ctrl && !typing && k === "y") { e.preventDefault(); redo(); }
+  else if (k === "escape" && run) { exitRun(); }
+});
+document.getElementById("b100").onclick = function () {
+  var w = document.getElementById("wrap");
+  applyScale(1, w.clientWidth / 2, w.clientHeight / 2);
+};
+
+(function () {
+  var w = document.getElementById("wrap");
+  w.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    var r = w.getBoundingClientRect();
+    applyScale(scale * (e.deltaY < 0 ? 1.1 : 1 / 1.1), e.clientX - r.left, e.clientY - r.top);
+  }, { passive: false });
+  w.addEventListener("mousedown", function (e) {
+    if (e.target !== board && e.target !== w) return;
+    var sx = e.clientX, sy = e.clientY, sl = w.scrollLeft, st = w.scrollTop;
+    function move(ev) {
+      w.scrollLeft = sl - (ev.clientX - sx);
+      w.scrollTop = st - (ev.clientY - sy);
+    }
+    function up() {
+      document.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseup", up);
+    }
+    document.addEventListener("mousemove", move);
+    document.addEventListener("mouseup", up);
+    e.preventDefault();
+  });
+})();
+
+function downloadTree() {
+  var blob = new Blob([JSON.stringify(tree, null, 2)], { type: "application/json" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "my-decision-tree.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+document.getElementById("bOpen").onclick = function () { openFile(); };
+
+document.getElementById("fileIn").onchange = function (ev) {
+  var f = ev.target.files[0];
+  if (!f) return;
+  var r = new FileReader();
+  r.onload = function () {
+    try {
+      var data = JSON.parse(r.result);
+      if (!data.nodes || !Array.isArray(data.nodes)) throw new Error("not a tree file");
+      tree = data;
+      fileHandle = null; undoStack = []; redoStack = [];
+      if (!tree.legend) tree.legend = defaultLegend();
+      openNotes = {};
+      setView(true);
+      fitTree();
+    } catch (e) {
+      alert("Sorry, this file could not be opened. It is not a decision tree file.");
+    }
+  };
+  r.readAsText(f);
+  ev.target.value = "";
+};
+
+makeNode(400, 60);
+render();
+</script>
+</body>
+</html>
