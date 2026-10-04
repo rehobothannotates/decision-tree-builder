@@ -1,0 +1,455 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "text": "Is the submission complete (all required parts present)?",
+      "x": 2790,
+      "y": 40,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Complete",
+          "to": 2
+        },
+        {
+          "label": "Incomplete",
+          "to": 21
+        }
+      ],
+      "note": "Check the title, author name, date, and every required attachment."
+    },
+    {
+      "id": 2,
+      "text": "Is the submitter's identity or source verified?",
+      "x": 2435,
+      "y": 300,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Verified",
+          "to": 3
+        },
+        {
+          "label": "Not verified",
+          "to": 20
+        }
+      ],
+      "note": "Match the name and contact details against your records."
+    },
+    {
+      "id": 3,
+      "text": "Is the content original, with no copying or duplication?",
+      "x": 2130,
+      "y": 560,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Original",
+          "to": 4
+        },
+        {
+          "label": "Copied",
+          "to": 19
+        }
+      ],
+      "note": "Search a few sentences online and in earlier submissions."
+    },
+    {
+      "id": 4,
+      "text": "Does it follow the required format and guidelines?",
+      "x": 1791,
+      "y": 820,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": 5
+        },
+        {
+          "label": "Minor issues",
+          "to": 17
+        },
+        {
+          "label": "Major issues",
+          "to": 18
+        }
+      ],
+      "note": "Check length, layout, file name, and every rule in the guidelines document."
+    },
+    {
+      "id": 5,
+      "text": "Is the information accurate when spot-checked?",
+      "x": 1243,
+      "y": 1080,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Accurate",
+          "to": 6
+        },
+        {
+          "label": "Some errors",
+          "to": 15
+        },
+        {
+          "label": "Cannot check",
+          "to": 16
+        }
+      ],
+      "note": "Spot-check at least three facts, figures, or claims."
+    },
+    {
+      "id": 6,
+      "text": "Does it contain private or sensitive information?",
+      "x": 681,
+      "y": 1340,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "No",
+          "to": 7
+        },
+        {
+          "label": "Yes",
+          "to": 12
+        }
+      ],
+      "note": "Look for ID numbers, phone numbers, addresses, or private company data."
+    },
+    {
+      "id": 7,
+      "text": "Is it relevant to the purpose of the review?",
+      "x": 377,
+      "y": 1600,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Relevant",
+          "to": 8
+        },
+        {
+          "label": "Not relevant",
+          "to": 11
+        }
+      ],
+      "note": "Compare it with the stated purpose. Good quality is not enough if it does not fit."
+    },
+    {
+      "id": 8,
+      "text": "Overall, how confident are you in accepting it?",
+      "x": 175,
+      "y": 1860,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Confident",
+          "to": 9
+        },
+        {
+          "label": "Not sure",
+          "to": 10
+        }
+      ],
+      "note": "Confident means you would be comfortable explaining this decision to someone else."
+    },
+    {
+      "id": 9,
+      "text": "Accept: all checks passed",
+      "x": 40,
+      "y": 2120,
+      "final": true,
+      "cat": 0,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "text": "Hold: ask a second reviewer before deciding",
+      "x": 310,
+      "y": 2120,
+      "final": true,
+      "cat": 1,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "text": "Reject: not relevant to the purpose",
+      "x": 580,
+      "y": 1860,
+      "final": true,
+      "cat": 2,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "text": "Does the submitter have permission to share it?",
+      "x": 985,
+      "y": 1600,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": 13
+        },
+        {
+          "label": "No",
+          "to": 14
+        }
+      ],
+      "note": "Look for a written permission or consent note in the submission."
+    },
+    {
+      "id": 13,
+      "text": "Accept after hiding the sensitive details",
+      "x": 850,
+      "y": 1860,
+      "final": true,
+      "cat": 1,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "text": "Reject: shares private information without permission",
+      "x": 1120,
+      "y": 1860,
+      "final": true,
+      "cat": 2,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "text": "Send back: ask the submitter to correct the errors",
+      "x": 1390,
+      "y": 1340,
+      "final": true,
+      "cat": 1,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "text": "Hold: ask a second reviewer to check the facts",
+      "x": 1660,
+      "y": 1340,
+      "final": true,
+      "cat": 1,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "text": "Send back: list the small fixes and ask for a corrected version",
+      "x": 1930,
+      "y": 1080,
+      "final": true,
+      "cat": 1,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "text": "Reject: does not follow the guidelines",
+      "x": 2200,
+      "y": 1080,
+      "final": true,
+      "cat": 2,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "text": "Reject: copied or duplicated content",
+      "x": 2470,
+      "y": 820,
+      "final": true,
+      "cat": 2,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "text": "Hold: verify the submitter first, then start the review again",
+      "x": 2740,
+      "y": 560,
+      "final": true,
+      "cat": 1,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "text": "Can the missing parts be requested from the submitter?",
+      "x": 3145,
+      "y": 300,
+      "final": false,
+      "cat": 3,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": 22
+        },
+        {
+          "label": "No",
+          "to": 23
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "text": "Hold: ask for the missing parts, then review again",
+      "x": 3010,
+      "y": 560,
+      "final": true,
+      "cat": 1,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "text": "Reject: incomplete and cannot be completed",
+      "x": 3280,
+      "y": 560,
+      "final": true,
+      "cat": 2,
+      "branches": [
+        {
+          "label": "Yes",
+          "to": null
+        },
+        {
+          "label": "No",
+          "to": null
+        }
+      ]
+    }
+  ],
+  "next": 24,
+  "start": 1,
+  "legend": [
+    {
+      "color": "#16a34a",
+      "name": "Accept"
+    },
+    {
+      "color": "#eab308",
+      "name": "Needs review"
+    },
+    {
+      "color": "#dc2626",
+      "name": "Reject"
+    },
+    {
+      "color": "#2563eb",
+      "name": "Check"
+    }
+  ]
+}

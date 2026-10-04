@@ -23,7 +23,7 @@ It is a single file (`decision-tree.html`). Your trees are saved as small `.json
 
 1. Download `decision-tree.html`.
 2. Double-click it. It opens in Chrome or Edge.
-3. Click **Open** and choose `sample-headphones-tree.json` to see an example, then click **Run Tree**.
+3. Click **Open** and choose a sample tree, then click **Run Tree**. Two samples are included: `sample-headphones-tree.json` (which headphones to recommend) and `sample-submission-review-tree.json` (accept, reject, or review a submission).
 4. To build your own, click **New** (or **Edit tree**), type a question, and click **+ Box** next to an answer to create the next box.
 5. Click **Save** to keep your tree. Click **Open** later to load it again.
 
