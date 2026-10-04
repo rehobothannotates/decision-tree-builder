@@ -2,6 +2,8 @@
 
 A simple, free decision tree tool that runs in your browser. No install, no account, no internet needed. Build a tree of questions with custom answers, then run it to reach a decision.
 
+**Try it online:** https://rehobothannotates.github.io/decision-tree-builder/
+
 It is a single file (`decision-tree.html`). Your trees are saved as small `.json` files on your own computer.
 
 ## What it does
