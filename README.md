@@ -14,6 +14,7 @@ It is a single file (`decision-tree.html`). Your trees are saved as small `.json
 - **Clean view:** a simple read-only look at your tree
 - Zoom with the mouse wheel, drag empty space to move around, and Fit to see the whole tree
 - Export the whole tree as a PNG picture
+- Search boxes by their question or note text
 - Undo, Redo, Copy a box, Save, and Save As
 
 ## How to use it
@@ -31,6 +32,7 @@ It is a single file (`decision-tree.html`). Your trees are saved as small `.json
 | Ctrl + S | Save |
 | Ctrl + Shift + S | Save As |
 | Ctrl + O | Open |
+| Ctrl + F | Search boxes |
 | Ctrl + Z | Undo |
 | Ctrl + Y | Redo |
 | Esc | Leave Run Mode |
@@ -40,7 +42,7 @@ It is a single file (`decision-tree.html`). Your trees are saved as small `.json
 - Made for a laptop or desktop with a mouse, in Chrome or Edge. It is not designed for phones.
 - PNG export shows boxes, arrows, answer labels, and a colour legend. Notes are not included.
 - Zoom level is not saved in your file.
-- Version 1. Search and a Windows installer (.exe) are possible future additions.
+- Version 1. A Windows installer (.exe) is a possible future addition.
 
 ## Built with
 

@@ -55,6 +55,10 @@
   .rpath li{margin-bottom:4px}
   #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:9px 18px;border-radius:8px;z-index:50;display:none;font-size:14px}
   @media (max-width:1500px){#hint{display:none}}
+  .node.hit{box-shadow:0 0 0 4px #facc15,0 0 14px 6px rgba(250,204,21,.7)}
+  .node.cur{box-shadow:0 0 0 5px #f97316,0 0 18px 8px rgba(249,115,22,.7)}
+  #sBox{width:130px;padding:7px 9px;border:0;border-radius:6px;font-size:14px}
+  #sCount{color:#cbd5e1;font-size:12px;min-width:50px}
   .small{margin-top:8px;font-size:12px;color:#475569;display:flex;justify-content:space-between;align-items:center}
   .small button{border:0;background:#e2e8f0;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:12px}
 </style>
@@ -75,6 +79,8 @@
   <button id="bFit" class="grey">Fit</button>
   <button id="b100" class="grey">100%</button>
   <button id="bPng">Export PNG</button>
+  <input id="sBox" placeholder="Search boxes..." title="Type to search. Enter = next match. Esc = clear">
+  <span id="sCount"></span>
   <span id="hint">Mouse wheel zooms. Drag empty space to move around.</span>
   <input type="file" id="fileIn" accept=".json" style="display:none">
 </div>
@@ -373,6 +379,48 @@ async function openFile() {
   }
 }
 
+var searchTerm = "", curId = null, hits = [], hitIdx = -1;
+
+function matchesNode(n) {
+  return (n.text || "").toLowerCase().indexOf(searchTerm) >= 0 ||
+         (n.note || "").toLowerCase().indexOf(searchTerm) >= 0;
+}
+
+function jumpTo(id) {
+  var n = byId(id);
+  if (!n) return;
+  var w = document.getElementById("wrap");
+  if (scale < 0.6) { scale = 0.8; board.style.transform = "scale(0.8)"; }
+  w.scrollLeft = (n.x + NODE_W / 2) * scale - w.clientWidth / 2;
+  w.scrollTop = (n.y + 40) * scale - w.clientHeight / 2;
+}
+
+function showCount() {
+  var c = document.getElementById("sCount");
+  if (!searchTerm) c.textContent = "";
+  else if (!hits.length) c.textContent = "No match";
+  else c.textContent = (hitIdx + 1) + " of " + hits.length;
+}
+
+function runSearch() {
+  searchTerm = document.getElementById("sBox").value.trim().toLowerCase();
+  hits = searchTerm ? tree.nodes.filter(matchesNode).map(function (n) { return n.id; }) : [];
+  hitIdx = hits.length ? 0 : -1;
+  curId = hitIdx >= 0 ? hits[0] : null;
+  render();
+  showCount();
+  if (curId !== null) jumpTo(curId);
+}
+
+function stepSearch(d) {
+  if (!hits.length) return;
+  hitIdx = (hitIdx + d + hits.length) % hits.length;
+  curId = hits[hitIdx];
+  render();
+  showCount();
+  jumpTo(curId);
+}
+
 var run = null;
 
 function startRun() {
@@ -535,6 +583,7 @@ function deleteNode(n) {
 function buildNode(n) {
   var el = h("div", { className: "node" + (n.final ? " final" : "") + (tree.start === n.id ? " start" : "") });
   el.dataset.id = n.id;
+  if (searchTerm && matchesNode(n)) el.className += (n.id === curId ? " hit cur" : " hit");
   el.style.left = n.x + "px";
   el.style.top = n.y + "px";
 
@@ -713,6 +762,13 @@ document.getElementById("bSaveAs").onclick = saveAs;
 document.getElementById("bUndo").onclick = undo;
 document.getElementById("bRedo").onclick = redo;
 
+var sb = document.getElementById("sBox");
+sb.oninput = runSearch;
+sb.onkeydown = function (e) {
+  if (e.key === "Enter") { e.preventDefault(); stepSearch(e.shiftKey ? -1 : 1); }
+  else if (e.key === "Escape") { sb.value = ""; runSearch(); sb.blur(); }
+};
+
 document.addEventListener("keydown", function (e) {
   var ctrl = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
   var typing = /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
@@ -720,6 +776,7 @@ document.addEventListener("keydown", function (e) {
   else if (ctrl && k === "o") { e.preventDefault(); openFile(); }
   else if (ctrl && !typing && k === "z") { e.preventDefault(); if (e.shiftKey) redo(); else undo(); }
   else if (ctrl && !typing && k === "y") { e.preventDefault(); redo(); }
+  else if (ctrl && k === "f") { e.preventDefault(); sb.focus(); sb.select(); }
   else if (k === "escape" && run) { exitRun(); }
 });
 document.getElementById("b100").onclick = function () {
